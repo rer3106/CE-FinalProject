@@ -1,11 +1,11 @@
 // ===========================================================
 //
 // Lab8_Speed.ino  
-// Description: Robot Speed
-// Name: Robert Reed, Brendan Deller
-// Date: October 24, 2019
+// Description: Robot speed
+// Name: <team member names here>
+// Date: <today's date here>
 // Class: CMPE-110
-// Section: <Lab: 5, Thursday, 5:00PM>
+// Section: <Lab: section, day, and time here>
 // ===========================================================
 
 #include <Romi_Motor_Power.h>
@@ -47,8 +47,6 @@ void loop()
 
   // uncomment to test slow speed
   //speedSlow();
-
-  
 }
 
 
@@ -191,7 +189,7 @@ void fwd(int speed)
   right_motor.directionForward();
   
   // set speed for both motors
-  left_motor.setSpeed(speed);
+  left_motor.setSpeed(speed-5);
   right_motor.setSpeed(speed);
 
   // enable both motors
