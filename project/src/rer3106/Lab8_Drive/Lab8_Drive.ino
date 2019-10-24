@@ -1,6 +1,6 @@
 // ===========================================================
 //
-// Lab8_Drive.ino  
+// Lab8_Drive.ino
 // Description: Motor Drive Tester
 // Name: Robert Reed, Brendan Deller
 // Date: October 24, 2019
@@ -25,9 +25,9 @@
 // Define the motors
 Romi_Motor_Power left_motor;
 Romi_Motor_Power right_motor;
-
-void setup() 
-{ 
+int counts = 180;
+void setup()
+{
   Serial.begin(19200); //for serial IO to screen
   Serial.println("Welcome to my distance tester!");
 
@@ -41,13 +41,42 @@ void setup()
 
   clearEncoders();
 }
-    
+
 void loop()
-{ 
-  pressToStart();          // wait for 'Start' button to be pressed
-  turnLeft(40);           // turn to the left
-  waitEncoderLeft(180);    // wait until it turns enough
-  stopMotors();            // stop motors
+{
+  pressToStart();           // wait for 'Start' button to be pressed
+
+  fwd(30);                  // drive forward
+  waitEncoderRight(478);    // wait until it turns enough
+  clearEncoders();          // Reset the encoder values
+  
+  turnLeft(15);             // turn to the left
+  waitEncoderLeft(counts);  // wait until it turns enough
+  clearEncoders();          // Reset the encoder values
+  
+  fwd(30);                  // drive forward
+  waitEncoderRight(478);    // wait until it turns enough
+  clearEncoders();          // Reset the encoder values
+  
+  turnLeft(15);             // turn to the left
+  waitEncoderLeft(counts);  // wait until it turns enough
+  clearEncoders();          // Reset the encoder values
+  
+  fwd(30);                  // drive forward
+  waitEncoderRight(478);    // wait until it turns enough
+  clearEncoders();          // Reset the encoder values
+  
+  turnLeft(15);             // turn to the left
+  waitEncoderLeft(counts);  // wait until it turns enough
+  clearEncoders();          // Reset the encoder values
+  
+  fwd(30);                  // drive forward
+  waitEncoderRight(478);    // wait until it turns enough
+  clearEncoders();          // Reset the encoder values
+  
+  turnLeft(15);             // turn to the left
+  waitEncoderLeft(counts);  // wait until it turns enough
+  clearEncoders();          // Reset the encoder values
 }
 
 
@@ -74,7 +103,7 @@ void waitEncoderLeft(int counts)
 
     if (lCount >= counts)
     {
-        return;
+      return;
     }
   }
 }
@@ -103,7 +132,7 @@ void waitEncoderRight(int counts)
 
     if (rCount >= counts)
     {
-        return;
+      return;
     }
   }
 }
@@ -116,7 +145,7 @@ void waitEncoderRight(int counts)
 void clearEncoders()
 {
   stopMotors(); // stop the motors so coutns do not hcange on us
-  wait(250);    // give wheels a chance to actually stop
+  wait(600);    // give wheels a chance to actually stop
 
   // clear the encoder counts
   resetLeftEncoderCnt();
@@ -129,7 +158,7 @@ void clearEncoders()
 // Description: wait for the 'Start' button to be pressed
 // Inputs:      none
 // Returns:     none
-// 
+//
 void pressToStart()
 {
   unsigned long startTime;
@@ -194,14 +223,14 @@ void stopMotors()
 // Inputs:      speed - the speed the robot will move, 1=slow, 255=fast
 // Returns:     none
 void fwd(int speed)
-{ 
+{
   // validate the speed value
   if (speed < MIN_SPEED) speed = MIN_SPEED;
   if (speed > MAX_SPEED) speed = MAX_SPEED;
-  
+
   // display the function we are in and its values
   Serial.print("forward:    ");
-  Serial.println(speed, DEC);  
+  Serial.println(speed, DEC);
 
   // disable both motors
   left_motor.disableMotor();
@@ -210,7 +239,7 @@ void fwd(int speed)
   // set both motors to forward
   left_motor.directionForward();
   right_motor.directionForward();
-  
+
   // set speed for both motors
   left_motor.setSpeed(speed);
   right_motor.setSpeed(speed);
@@ -230,11 +259,11 @@ void rev(int speed)
   // validate the speed value
   if (speed < MIN_SPEED) speed = MIN_SPEED;
   if (speed > MAX_SPEED) speed = MAX_SPEED;
-  
+
   // display the function we are in and its values
   Serial.print("backwards:  ");
   Serial.println(speed, DEC);
-  
+
   // disable both motors
   left_motor.disableMotor();
   right_motor.disableMotor();
@@ -242,7 +271,7 @@ void rev(int speed)
   // set both motors to forward
   left_motor.directionBackward();
   right_motor.directionBackward();
-  
+
   // set speed for both motors
   left_motor.setSpeed(speed);
   right_motor.setSpeed(speed);
@@ -265,8 +294,8 @@ void turnLeft(int speed)
 
   // display the function we are in and its values
   Serial.print("turn left:  ");
-  Serial.println(speed, DEC);  
-  
+  Serial.println(speed, DEC);
+
   // disable both motors
   left_motor.disableMotor();
   right_motor.disableMotor();
@@ -274,7 +303,7 @@ void turnLeft(int speed)
   // set left motor backward and right motor forward
   left_motor.directionBackward();
   right_motor.directionForward();
-  
+
   // set speed for both motors
   left_motor.setSpeed(speed);
   right_motor.setSpeed(speed);
@@ -298,7 +327,7 @@ void turnRight(int speed)
   // display the function we are in and its values
   Serial.print("turn right: ");
   Serial.println(speed, DEC);
-  
+
   // disable both motors
   left_motor.disableMotor();
   right_motor.disableMotor();
@@ -306,7 +335,7 @@ void turnRight(int speed)
   // set left motor forward and right motor backward
   left_motor.directionForward();
   right_motor.directionBackward();
-  
+
   // set speed for both motors
   left_motor.setSpeed(speed);
   right_motor.setSpeed(speed);
@@ -322,7 +351,7 @@ void turnRight(int speed)
 // Inputs:      duration - number of milliseconds before this function returns
 // Returns:     none
 void wait(int duration)
-{ 
+{
   // display the function we are in and its values
   Serial.print("wait:       ");
   Serial.print(duration, DEC);
