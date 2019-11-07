@@ -43,7 +43,10 @@ void setup()
 void loop()
 {
   // uncomment the following line to print the wheel encoder values
-  testEncoder();
+  for(int i=0; i<100;i++){
+      fwd(i);
+    }
+    stopMotors();
 }
 
     

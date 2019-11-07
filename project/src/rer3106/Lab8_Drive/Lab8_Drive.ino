@@ -45,11 +45,87 @@ void setup()
 void loop()
 { 
   pressToStart();          // wait for 'Start' button to be pressed
-  turnLeft(40);           // turn to the left
-  waitEncoderLeft(180);    // wait until it turns enough
-  stopMotors();            // stop motors
+  //fwd(10);
+  
+  for(int i = 0; i<4;i++){
+    forwardWithChecking(12);   
+    stopMotors();            // stop motors
+        clearEncoders();  
+
+    turnLeft(10);
+    waitEncoderLeft(180);  // wait until it turns enough
+    clearEncoders();  
+    stopMotors();
+  }
+  
 }
 
+
+//Ours
+void waitEncoderForward(float inches)
+{
+  int counts = (int)(inches / 0.02465278);
+  long    rCount = 0;     // right motor encoder counts
+
+  while (true)
+  {
+    // get current value
+    rCount = abs(getEncoderRightCnt());
+
+    // print new counter value
+    Serial.print("wait right: ");
+    Serial.print(rCount, DEC);
+    Serial.print("\twant: ");
+    Serial.print(counts, DEC);
+    Serial.println("");
+
+    if (rCount >= counts)
+    {
+        return;
+    }
+  }
+}
+
+//Ours
+void forwardWithChecking(float inches){
+  int speed = 10;
+  int counts = (int)(inches / 0.02465278);
+  long    rCount = 0;
+  long lCount = 0;
+  fwd(speed);
+  
+  while(rCount<counts){
+       rCount = abs(getEncoderRightCnt());
+       lCount = abs(getEncoderLeftCnt());
+      if(!checkEqual(rCount, lCount)){ //when they are not equal
+          long diff = lCount-rCount;
+          switch(diff<0){ 
+            case false: // Left is greater than right
+              left_motor.setSpeed(speed-2);
+              break;
+            case true: // Right is greater than left
+              right_motor.setSpeed(speed-2);
+              break;
+            }
+        
+        }
+        else{
+          left_motor.setSpeed(speed);
+          right_motor.setSpeed(speed);
+          }
+      
+       
+  }
+
+  stopMotors();  
+}
+
+boolean checkEqual(long l, long r){
+    if(abs(l-r)<5)
+      return true;
+    else
+      return false;
+  }
 
 
 // Function:    waitEncoderLeft
@@ -78,7 +154,6 @@ void waitEncoderLeft(int counts)
     }
   }
 }
-
 
 
 // Function:    waitEncoderRight

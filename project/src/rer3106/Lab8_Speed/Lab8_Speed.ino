@@ -42,12 +42,18 @@ void setup()
 
 void loop() 
 {
+  pressToStart();
   // uncomment to test normal speed
-  speedNormal();
+  //speedNormal();
 
   // uncomment to test slow speed
   //speedSlow();
-
+  for(int i=0; i<100;i++){
+      fwd(i);
+      wait(10);
+    }
+    stopMotors();
+    
   
 }
 
