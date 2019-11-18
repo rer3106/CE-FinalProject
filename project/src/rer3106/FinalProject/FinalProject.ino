@@ -90,7 +90,7 @@ void setup()
 void loop() {
   // put your main code here, to run repeatedly: 
     pressToStart();          // wait for 'Start' button to be pressed
-    followLine();
+    followLine2(2);
     //first();
     //driveUntilLine();
     //drawSquare();
@@ -101,26 +101,48 @@ void loop() {
 }
 
 void followLine(){
-    testLine(850);
+    testLine(850); // Retrieves and stores initial conditions 
 
-  while(true){
-    if(centerLine==true){
-                  digitalWrite(GREEN_LED_PIN, HIGH);
-
-    testLine(850);
-  fwd(10);
-    }
-  if(leftLine==true){
-    makeRightTurn(10, 45);
-    }
-  else if(rightLine==true)
-    makeLeftTurn(10,45);
-  
-  }
-                digitalWrite(GREEN_LED_PIN, LOW);
-
-  stopBothMotors();
+	while(centerLine==true){ // Drive while there is a centerline to follow
+		testLine(850);
+		fwd(10);
+	
+		if(leftLine==true){
+			digitalWrite(GREEN_LED_PIN, HIGH);
+			makeRightTurn(10, 45);
+		}
+		else if(rightLine==true){
+			digitalWrite(GREEN_LED_PIN, HIGH);
+			makeLeftTurn(10,45);
+		}
+		digitalWrite(GREEN_LED_PIN, LOW);
+		stopBothMotors();
+	}
 }
+
+void followLine2(int minspeed){
+	testLine(850); // check if on line
+	
+	fwd(10);
+	while(centerLine==true){
+		testLine(850);
+		if(leftLine==true){ // Left triggered
+			digitalWrite(GREEN_LED_PIN, HIGH);
+			left_motor.setSpeed(minspeed);
+
+		}else if(rightLine==true){ // Right Triggered
+			digitalWrite(GREEN_LED_PIN, HIGH);
+			right_motor.setSpeed(minspeed);
+
+		}else // Neither triggered
+			digitalWrite(GREEN_LED_PIN, LOW);
+			left_motor.setSpeed(10);
+			right_motor.setSpeed(10);
+		}
+	}
+	stopBothMotors();
+}
+
 
 void first(){
     forwardDistance(30);
