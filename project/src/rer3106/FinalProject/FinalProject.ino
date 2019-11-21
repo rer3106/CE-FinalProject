@@ -88,61 +88,157 @@ void setup()
 }
 
 void loop() {
-  // put your main code here, to run repeatedly: 
     pressToStart();          // wait for 'Start' button to be pressed
-    followLine2(2);
-    //first();
-    //driveUntilLine();
-    //drawSquare();
-//    forwardDistance(12);
-//    makeLeftTurn(10,180);
-//    forwardDistance(12);
-//    makeRightTurn(10,180);
-}
-
-void followLine(){
-    testLine(850); // Retrieves and stores initial conditions 
-
-	while(centerLine==true){ // Drive while there is a centerline to follow
-		testLine(850);
-		fwd(10);
+    
+	first(); // navigate the boxes and stop on the white line facing left
 	
-		if(leftLine==true){
-			digitalWrite(GREEN_LED_PIN, HIGH);
-			makeRightTurn(10, 45);
-		}
-		else if(rightLine==true){
-			digitalWrite(GREEN_LED_PIN, HIGH);
-			makeLeftTurn(10,45);
-		}
-		digitalWrite(GREEN_LED_PIN, LOW);
-		stopBothMotors();
-	}
+	// Experimental
+	followLine2(0); // follow the line until it ends (handles dropped box)
+	
+	// Experimental
+	alignWithLine(5); // reverse until the bot is parallel to the line
+	
+	fwd(0); //assures the motors are ready to move forward
+	
+    makeLeftTurn(10,180); // make a left turn
+	
+	driveUntilLine(); // drive until the end of the course
+	
+	forwardDistance(6); // continue past the line by six inches
+
 }
 
+void alignWithLine(int speed){
+  // set both motors to forward
+  left_motor.directionBackward();
+  right_motor.directionBackward();
+  
+  // set speed for both motors
+  left_motor.setSpeed(speed);
+  right_motor.setSpeed(speed);
+
+  // enable both motors
+  left_motor.enableMotor();
+  right_motor.enableMotor();
+  
+  do { //loop while left and right dont have a line under them
+	if(lineSensorValues[1] >=850){
+		left_motor.setSpeed(0);
+	}
+	if(lineSensorValues[6] >=850){
+		left_motor.setSpeed(0);
+	}
+	
+  }while(!(lineSensorValues[0] <850 && lineSensorValues[7]<850));
+}
+
+
+// Function:    rev
+// Description: set motor speed so robot drives backwards
+// Inputs:      speed - the speed the robot will move, 1=slow, 255=fast
+// Returns:     none
+void rev(int speed)
+{
+  // validate the speed value
+  if (speed < MIN_SPEED) speed = MIN_SPEED;
+  if (speed > MAX_SPEED) speed = MAX_SPEED;
+  
+  // display the function we are in and its values
+  Serial.print("backwards:  ");
+  Serial.println(speed, DEC);
+  
+  // disable both motors
+  left_motor.disableMotor();
+  right_motor.disableMotor();
+
+  // set both motors to forward
+  left_motor.directionBackward();
+  right_motor.directionBackward();
+  
+  // set speed for both motors
+  left_motor.setSpeed(speed);
+  right_motor.setSpeed(speed);
+
+  // enable both motors
+  left_motor.enableMotor();
+  right_motor.enableMotor();
+}
+
+//void followLine(){
+//    testLine(850); // Retrieves and stores initial conditions 
+//
+//	while(centerLine==true){ // Drive while there is a centerline to follow
+//		testLine(850);
+//		fwd(10);
+//	
+//		if(leftLine==true){
+//			digitalWrite(GREEN_LED_PIN, HIGH);
+//			makeRightTurn(10, 45);
+//		}
+//		else if(rightLine==true){
+//			digitalWrite(GREEN_LED_PIN, HIGH);
+//			makeLeftTurn(10,45);
+//		}
+//		digitalWrite(GREEN_LED_PIN, LOW);
+//		stopBothMotors();
+//	}
+//}
+
+//Logic is as follows:
+//	while on line
+//		if hit box
+//			dont move
+//		otherwise
+//			if the line isnt under left sensor
+//				stop the right motor
+//			otherwise if the line isnt under right sensor
+//				stop the left motor
+//			otherwise
+//				drive forward
+//	stop driving
 void followLine2(int minspeed){
 	testLine(850); // check if on line
 	
 	fwd(10);
 	while(centerLine==true){
-		testLine(850);
-		if(leftLine==true){ // Left triggered
-			digitalWrite(GREEN_LED_PIN, HIGH);
-			left_motor.setSpeed(minspeed);
-
-		}else if(rightLine==true){ // Right Triggered
-			digitalWrite(GREEN_LED_PIN, HIGH);
-			right_motor.setSpeed(minspeed);
-
-		}else // Neither triggered
-			digitalWrite(GREEN_LED_PIN, LOW);
-			left_motor.setSpeed(10);
-			right_motor.setSpeed(10);
+		// This will actually continue to operate properly for multiple boxes on the line, because it will always pause in the case of a button being pressed, then remove typical line following
+		if((bump_sw[0].read() == 0 || bump_sw[1].read() == 0 || bump_sw[2].read() == 0 || bump_sw[3].read() == 0 || bump_sw[4].read() == 0 || bump_sw[5].read() == 0)) {    // in the case that there are any bump switches activated, stop the motors
+			stopBothMotors();
 		}
+		else{ // Otherwise, allow the robot to drive forward
+			testLine(850);
+			if(leftLine==true){ // Left triggered
+				digitalWrite(GREEN_LED_PIN, HIGH);
+				right_motor.setSpeed(minspeed); // Slow the right wheel
+
+			}else if(rightLine==true){ // Right Triggered
+				digitalWrite(GREEN_LED_PIN, HIGH);
+				left_motor.setSpeed(minspeed); // Slow the left wheel
+
+			}else{ // Neither triggered
+				digitalWrite(GREEN_LED_PIN, LOW);
+				left_motor.setSpeed(10); // Normal Speed
+				right_motor.setSpeed(10); // Normal Speed
+			}
+		}	
 	}
-	stopBothMotors();
+	stopBothMotors(); // Stop moving when there is no longer a center line present
 }
 
+// Function:    driveUntilBump
+// Description: drive robot forward until it detects a bump
+// Inputs:      none
+// Returns:     none
+void driveUntilBump()
+{
+
+  while(true) { // Loop for like ever
+    if((bump_sw[0].read() == 0 || bump_sw[1].read() == 0 || bump_sw[2].read() == 0 || bump_sw[3].read() == 0 || bump_sw[4].read() == 0 || bump_sw[5].read() == 0))     // in the case that there are any bump switches activated, stop the motors
+      stopBothMotors();
+    else // Otherwise, allow the robot to drive forward
+      fwd(30);
+  }
+}
 
 void first(){
     forwardDistance(30);
@@ -151,7 +247,7 @@ void first(){
     makeLeftTurn(10,180);
     driveUntilLine();
     makeLeftTurn(10,180);
-    driveUntilBump();
+    //driveUntilBump();
   }
 
 //Testing
@@ -260,20 +356,7 @@ void testLine(unsigned long threshold)
 }
 
 
-// Function:    driveUntilBump
-// Description: drive robot forward until it detects a bump
-// Inputs:      none
-// Returns:     none
-void driveUntilBump()
-{
 
-  while(true) { // Loop for like ever
-    if((bump_sw[0].read() == 0 || bump_sw[1].read() == 0 || bump_sw[2].read() == 0 || bump_sw[3].read() == 0 || bump_sw[4].read() == 0 || bump_sw[5].read() == 0))     // in the case that there are any bump switches activated, stop the motors
-      stopBothMotors();
-    else // Otherwise, allow the robot to drive forward
-      fwd(30);
-  }
-}
 
 void makeLeftTurn(int speed,int counts){
     clearEncoders();          // Reset the encoder values
